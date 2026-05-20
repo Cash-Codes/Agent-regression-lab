@@ -63,6 +63,5 @@ export class MockLLMClient implements LLMClient {
 }
 
 function estimateTokens(s: string): number {
-  // Deterministic ~4-chars-per-token heuristic; good enough for demo telemetry.
   return Math.max(1, Math.ceil(s.length / 4));
 }
