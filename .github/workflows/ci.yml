@@ -4,15 +4,34 @@ on:
   push:
     branches:
       - main
-      - feat/**
-      - chore/**
-      - fix/**
+      - version-v1
+      - feat-*
+      - chore-*
+      - fix-*
 
   pull_request:
 
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: arl
+          POSTGRES_PASSWORD: arl
+          POSTGRES_DB: arl
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U arl -d arl"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 20
+
+    env:
+      DATABASE_URL: postgresql://arl:arl@localhost:5432/arl?schema=public
 
     steps:
       - name: Checkout
@@ -22,9 +41,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
       - name: Install
-        run: npm install
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Apply migrations
+        run: npx prisma migrate deploy
 
       - name: Lint
         run: npm run lint
