@@ -67,6 +67,11 @@ export class EventCapture {
   }
 
   tick(ms: number): void {
+    if (ms < 0) {
+      throw new RangeError(
+        `EventCapture.tick(): ms must be non-negative, got ${ms}`,
+      );
+    }
     this.logicalClock += ms;
   }
 

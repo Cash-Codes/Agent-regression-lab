@@ -232,4 +232,27 @@ describe('EventCapture', () => {
 
     warnSpy.mockRestore();
   });
+
+  // -------------------------------------------------------------------------
+  // tick() — advances the logical clock and refuses negative deltas
+  // -------------------------------------------------------------------------
+
+  it('tick() advances logicalClock so subsequent events carry the updated value', async () => {
+    const cap = new EventCapture('run-1', 100);
+    cap.emit('runtime.time', { logicalMs: 0 });
+    cap.tick(50);
+    cap.emit('runtime.time', { logicalMs: 1 });
+
+    const p = fakePrisma();
+    await cap.flush(p as unknown as never);
+
+    const recorded = p._events as { logicalClock: number }[];
+    expect(recorded.map((e) => e.logicalClock)).toEqual([100, 150]);
+  });
+
+  it('tick() throws RangeError when given a negative delta', () => {
+    const cap = new EventCapture('run-1');
+    expect(() => cap.tick(-1)).toThrow(RangeError);
+    expect(() => cap.tick(-1)).toThrow(/non-negative/);
+  });
 });

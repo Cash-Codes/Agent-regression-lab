@@ -72,5 +72,9 @@ function mapStopReason(s: string | null): LLMStopReason {
   ) {
     return s;
   }
+  console.warn(
+    "AnthropicLLMClient: unknown stop_reason, mapping to 'end_turn'",
+    { stopReason: s },
+  );
   return 'end_turn';
 }

@@ -5,7 +5,7 @@ declare global {
   var __arlPrisma: PrismaClient | undefined;
 }
 
-function createPrismaClient(): PrismaClient {
+function buildPrismaClient(): PrismaClient {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error('DATABASE_URL is not set');
@@ -14,11 +14,25 @@ function createPrismaClient(): PrismaClient {
   return new PrismaClient({ adapter, log: ['warn', 'error'] });
 }
 
-export const prisma: PrismaClient =
-  globalThis.__arlPrisma ?? createPrismaClient();
+let _prisma: PrismaClient | undefined;
 
-if (process.env.NODE_ENV !== 'production') {
-  globalThis.__arlPrisma = prisma;
+export function getPrisma(): PrismaClient {
+  if (globalThis.__arlPrisma) return globalThis.__arlPrisma;
+  if (_prisma) return _prisma;
+  _prisma = buildPrismaClient();
+  if (process.env.NODE_ENV !== 'production') {
+    globalThis.__arlPrisma = _prisma;
+  }
+  return _prisma;
 }
+
+// Lazy proxy: forwards every access to the singleton, constructing it on
+// first use. Importing this module has no side effects, so tests and tools
+// that don't need a DB connection can import server code freely.
+export const prisma: PrismaClient = new Proxy({} as PrismaClient, {
+  get(_target, prop, receiver) {
+    return Reflect.get(getPrisma(), prop, receiver);
+  },
+}) as PrismaClient;
 
 export type { PrismaClient };
