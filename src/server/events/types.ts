@@ -33,6 +33,15 @@ const LLMResponsePayload = z.object({
   tokensOut: z.number().int().nonnegative(),
   costUsd: z.number().nonnegative().optional(),
   error: z.string().optional(),
+  toolCalls: z
+    .array(
+      z.object({
+        toolName: z.string(),
+        input: z.unknown(),
+        callId: z.string(),
+      }),
+    )
+    .optional(),
 });
 
 const ToolCallPayload = z.object({

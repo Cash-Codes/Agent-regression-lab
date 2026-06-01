@@ -75,6 +75,18 @@ export class EventCapture {
     this.logicalClock += ms;
   }
 
+  currentLogicalClock(): number {
+    return this.logicalClock;
+  }
+
+  get eventCount(): number {
+    return this.events.length;
+  }
+
+  get pendingEvents(): readonly { type: string; payload: unknown }[] {
+    return this.events.map((e) => ({ type: e.type, payload: e.payload }));
+  }
+
   computeReplayHash(): string {
     const summary = this.events.map((e) => ({
       sequenceNumber: e.sequenceNumber,
@@ -84,11 +96,14 @@ export class EventCapture {
     return sha256(canonicalJSON(summary));
   }
 
-  async flush(prisma: PrismaClient): Promise<{ replayHash: string }> {
+  async flush(
+    prisma: PrismaClient,
+    opts?: { finalStatus?: 'COMPLETE' | 'FAILED'; error?: string },
+  ): Promise<{ replayHash: string }> {
     if (this.flushed) {
       throw new IllegalStateError('EventCapture has already been flushed');
     }
-
+    const finalStatus = opts?.finalStatus ?? 'COMPLETE';
     const replayHash = this.computeReplayHash();
 
     try {
@@ -110,13 +125,14 @@ export class EventCapture {
           where: { id: this.runId },
           data: {
             replayHash,
-            status: 'COMPLETE',
+            status: finalStatus,
+            error: opts?.error ?? null,
             finishedAt: new Date(),
           },
         });
       });
       // Only mark flushed on the success path; a failed flush leaves the
-      // capture reusable (caller may retry with a new instance or discard).
+      // capture in a state where the caller can retry or discard.
       this.flushed = true;
       return { replayHash };
     } catch (err) {
@@ -124,7 +140,11 @@ export class EventCapture {
       await prisma.run
         .update({
           where: { id: this.runId },
-          data: { status: 'FAILED', error: message, finishedAt: new Date() },
+          data: {
+            status: 'FAILED',
+            error: message,
+            finishedAt: new Date(),
+          },
         })
         .catch((secondaryErr) => {
           console.warn('EventCapture: failed to mark run FAILED', secondaryErr);
