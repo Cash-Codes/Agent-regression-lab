@@ -24,10 +24,17 @@ export type LLMStopReason =
   | 'stop_sequence'
   | 'error';
 
+export interface LLMToolCall {
+  toolName: string;
+  input: unknown;
+  callId: string;
+}
+
 export interface LLMResponse {
   model: string;
   content: string;
   stopReason: LLMStopReason;
+  toolCalls?: LLMToolCall[];
   tokensIn: number;
   tokensOut: number;
   costUsd?: number;

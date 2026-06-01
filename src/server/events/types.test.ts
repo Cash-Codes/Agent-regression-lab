@@ -61,4 +61,18 @@ describe('EventPayloads', () => {
       expect(EventPayloads[k]).toBeDefined();
     }
   });
+
+  it('accepts llm.response with toolCalls', () => {
+    const result = EventPayloads['llm.response'].safeParse({
+      model: 'mock',
+      content: '',
+      stopReason: 'tool_use',
+      tokensIn: 5,
+      tokensOut: 0,
+      toolCalls: [
+        { toolName: 'lookup_order', input: { orderId: 'o-1' }, callId: 'c-1' },
+      ],
+    });
+    expect(result.success).toBe(true);
+  });
 });
