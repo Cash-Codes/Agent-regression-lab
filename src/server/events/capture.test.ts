@@ -275,6 +275,25 @@ describe('EventCapture', () => {
     expect(cap.eventCount).toBe(2);
   });
 
+  it('pendingEvents returns events in emit order and mutating the result does not affect internal state', () => {
+    const cap = new EventCapture('run-1');
+    cap.emit('runtime.time', { logicalMs: 0 });
+    cap.emit('runtime.time', { logicalMs: 1 });
+
+    const events = cap.pendingEvents;
+    expect(events).toHaveLength(2);
+    expect(events[0].type).toBe('runtime.time');
+    expect(events[1].type).toBe('runtime.time');
+
+    // Mutate the returned array — internal state must be unaffected.
+    (events as { type: string; payload: unknown }[]).push({
+      type: 'injected',
+      payload: {},
+    });
+    expect(cap.eventCount).toBe(2);
+    expect(cap.pendingEvents).toHaveLength(2);
+  });
+
   it('flush({ finalStatus: "FAILED", error }) marks run FAILED and persists the events', async () => {
     const cap = new EventCapture('run-1');
     cap.emit('runtime.time', { logicalMs: 0 });

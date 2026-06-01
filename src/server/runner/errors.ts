@@ -6,7 +6,7 @@ export class LiveModeNotImplemented extends Error {
 }
 
 export class MaxIterationsExceeded extends Error {
-  constructor(maxIterations: number) {
+  constructor(public readonly maxIterations: number) {
     super(`Agent loop exceeded ${maxIterations} iterations`);
     this.name = 'MaxIterationsExceeded';
   }
