@@ -29,6 +29,7 @@ export interface RunScenarioResult {
   replayHash: string;
   status: 'COMPLETE' | 'FAILED';
   events: number;
+  iterations: number;
   durationMs: number;
   totalTokensIn: number;
   totalTokensOut: number;
@@ -51,7 +52,9 @@ function extractInitialMessages(inputs: ScenarioInputs): ChatMessage[] {
   return [];
 }
 
-function aggregateLLMTotals(events: { type: string; payload: unknown }[]): {
+function aggregateLLMTotals(
+  events: readonly { type: string; payload: unknown }[],
+): {
   in: number;
   out: number;
   cost: number | null;
@@ -104,11 +107,8 @@ export async function runScenario(
 
   const startedAt = Date.now();
   const capture = new EventCapture(run.id);
-  // PRNG + clock are instantiated for side effects (event capture).
-  // The agent itself can read them if it wants; for the v1 mock agent
-  // they're available but unused.
-  void new FrozenClock(capture);
-  void new SeededPRNG(opts.seed ?? hashSeed(run.id), capture);
+  const clock = new FrozenClock(capture);
+  const prng = new SeededPRNG(opts.seed ?? hashSeed(run.id), capture);
 
   const baseLLM =
     opts.llmClient ??
@@ -119,7 +119,7 @@ export async function runScenario(
   const executor = new SnapshotToolExecutor(fixtures);
 
   try {
-    const { finalResponse, iterations } = await runAgentLoop({
+    const { iterations } = await runAgentLoop({
       llm,
       executor,
       capture,
@@ -127,18 +127,12 @@ export async function runScenario(
       toolDefinitions: inputs.tools,
       maxIterations: opts.maxIterations ?? 10,
       model: opts.modelConfig?.model,
+      clock,
+      prng,
     });
-    void iterations;
-    void finalResponse;
 
+    const totals = aggregateLLMTotals(capture.pendingEvents);
     const { replayHash } = await capture.flush(prisma);
-
-    // Re-read just enough to aggregate token totals (also confirms persistence).
-    const persisted = await prisma.event.findMany({
-      where: { runId: run.id },
-      orderBy: { sequenceNumber: 'asc' },
-    });
-    const totals = aggregateLLMTotals(persisted);
 
     const durationMs = Date.now() - startedAt;
 
@@ -157,6 +151,7 @@ export async function runScenario(
       replayHash,
       status: 'COMPLETE',
       events: capture.eventCount,
+      iterations,
       durationMs,
       totalTokensIn: totals.in,
       totalTokensOut: totals.out,

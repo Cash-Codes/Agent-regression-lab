@@ -8,6 +8,8 @@ import type {
 } from '../llm/types';
 import { MaxIterationsExceeded } from './errors';
 import type { SnapshotToolExecutor } from './tool-executor';
+import type { FrozenClock } from './clock';
+import type { SeededPRNG } from './prng';
 
 function errorMessage(err: unknown): string {
   if (err instanceof Error) return err.message;
@@ -29,6 +31,11 @@ export interface AgentLoopOpts {
   toolDefinitions?: ToolDefinition[];
   maxIterations: number;
   model?: string;
+  /** Optional determinism primitives. Available to agents that want to read
+   *  the captured logical clock or draw seeded random values. The runner
+   *  passes these through from runScenario. */
+  clock?: FrozenClock;
+  prng?: SeededPRNG;
 }
 
 export interface AgentLoopResult {

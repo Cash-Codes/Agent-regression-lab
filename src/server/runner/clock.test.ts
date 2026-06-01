@@ -30,4 +30,11 @@ describe('FrozenClock', () => {
     const clock = new FrozenClock(cap);
     expect(() => clock.advance(-1)).toThrow(RangeError);
   });
+
+  it('startMs constructor parameter advances the capture clock without emitting an event', () => {
+    const cap = new EventCapture('run-1');
+    const clock = new FrozenClock(cap, 1000);
+    expect(clock.now()).toBe(1000);
+    expect(cap.eventCount).toBe(0);
+  });
 });
