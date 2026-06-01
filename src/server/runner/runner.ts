@@ -1,5 +1,5 @@
 import { prisma } from '../db/client';
-import { canonicalJSON, sha256 } from '../events/canonical';
+import { sha256 } from '../events/canonical';
 import { EventCapture } from '../events/capture';
 import type { ChatMessage, LLMClient, ToolDefinition } from '../llm/types';
 import { MockLLMClient, type CannedResponse } from '../llm/mock';
