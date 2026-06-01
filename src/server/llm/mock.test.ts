@@ -74,4 +74,32 @@ describe('MockLLMClient', () => {
     });
     expect(res.content).toBe('pong');
   });
+
+  it("returns toolCalls when the canned response has stopReason 'tool_use'", async () => {
+    const client = new MockLLMClient([
+      {
+        match: 'order',
+        response: {
+          model: 'mock',
+          content: '',
+          stopReason: 'tool_use',
+          toolCalls: [
+            {
+              toolName: 'lookup_order',
+              input: { orderId: 'o-1' },
+              callId: 'c-1',
+            },
+          ],
+        },
+      },
+    ]);
+    const res = await client.complete({
+      model: 'mock',
+      messages: [{ role: 'user', content: 'find my order' }],
+    });
+    expect(res.stopReason).toBe('tool_use');
+    expect(res.toolCalls).toEqual([
+      { toolName: 'lookup_order', input: { orderId: 'o-1' }, callId: 'c-1' },
+    ]);
+  });
 });

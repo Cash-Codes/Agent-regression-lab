@@ -23,6 +23,7 @@ export interface CannedResponse {
     model: string;
     content: string;
     stopReason: LLMStopReason;
+    toolCalls?: { toolName: string; input: unknown; callId: string }[];
     tokensIn?: number;
     tokensOut?: number;
     costUsd?: number;
@@ -51,6 +52,7 @@ export class MockLLMClient implements LLMClient {
           model: c.response.model,
           content: c.response.content,
           stopReason: c.response.stopReason,
+          toolCalls: c.response.toolCalls,
           tokensIn: c.response.tokensIn ?? estimateTokens(prompt),
           tokensOut: c.response.tokensOut ?? estimateTokens(c.response.content),
           costUsd: c.response.costUsd,
