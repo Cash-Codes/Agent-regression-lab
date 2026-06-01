@@ -255,4 +255,42 @@ describe('EventCapture', () => {
     expect(() => cap.tick(-1)).toThrow(RangeError);
     expect(() => cap.tick(-1)).toThrow(/non-negative/);
   });
+
+  // -------------------------------------------------------------------------
+  // Step 2 additive extensions: getters + flush({finalStatus, error})
+  // -------------------------------------------------------------------------
+
+  it('exposes currentLogicalClock() that reflects the active logical time', () => {
+    const cap = new EventCapture('run-1', 250);
+    expect(cap.currentLogicalClock()).toBe(250);
+    cap.tick(75);
+    expect(cap.currentLogicalClock()).toBe(325);
+  });
+
+  it('exposes eventCount that reflects the queued event count', () => {
+    const cap = new EventCapture('run-1');
+    expect(cap.eventCount).toBe(0);
+    cap.emit('runtime.time', { logicalMs: 0 });
+    cap.emit('runtime.time', { logicalMs: 1 });
+    expect(cap.eventCount).toBe(2);
+  });
+
+  it('flush({ finalStatus: "FAILED", error }) marks run FAILED and persists the events', async () => {
+    const cap = new EventCapture('run-1');
+    cap.emit('runtime.time', { logicalMs: 0 });
+    cap.emit('runtime.time', { logicalMs: 1 });
+    const p = fakePrisma();
+    await cap.flush(p as unknown as never, {
+      finalStatus: 'FAILED',
+      error: 'agent crashed',
+    });
+    // Events still persisted (the trace is useful)
+    expect(p._events as unknown[]).toHaveLength(2);
+    // Run update happened inside the transaction with FAILED status
+    const inTx = (
+      p._runUpdates as { status?: string; _inTx?: boolean; error?: string }[]
+    ).find((u) => u._inTx);
+    expect(inTx?.status).toBe('FAILED');
+    expect(inTx?.error).toBe('agent crashed');
+  });
 });
