@@ -3,6 +3,7 @@ import {
   ScenarioList,
   type ScenarioRow,
 } from '@/components/scenario/scenario-list';
+import { NewScenarioForm } from '@/components/scenario/new-scenario-form';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,9 +39,7 @@ export default async function ScenariosPage() {
         </p>
       </header>
       <ScenarioList scenarios={rows} />
-      <p className="text-muted text-xs">
-        New-scenario form coming in the next task.
-      </p>
+      <NewScenarioForm />
     </div>
   );
 }
