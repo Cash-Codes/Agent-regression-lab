@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@server/db/client';
+import { runScenario } from '@server/runner/runner';
 import {
   parseTags,
   parseInputsJSON,
@@ -57,4 +58,27 @@ export async function createScenarioAction(
 
   revalidatePath('/scenarios');
   redirect(`/scenarios/${created.id}`);
+}
+
+export async function runScenarioAction(formData: FormData): Promise<void> {
+  const scenarioId = String(formData.get('scenarioId') ?? '').trim();
+  if (!scenarioId) {
+    throw new Error('scenarioId required');
+  }
+
+  let runId: string | undefined;
+  try {
+    const result = await runScenario({ scenarioId });
+    runId = result.runId;
+  } catch (err) {
+    // The runner already persists run.status=FAILED via its catch path.
+    // We don't surface the runId on a throw — redirect back to the scenario
+    // detail page so the user can see the FAILED run in the list.
+    void err;
+    revalidatePath(`/scenarios/${scenarioId}`);
+    redirect(`/scenarios/${scenarioId}`);
+  }
+
+  revalidatePath(`/scenarios/${scenarioId}`);
+  redirect(`/runs/${runId}`);
 }
