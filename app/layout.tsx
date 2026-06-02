@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Inter, Geist_Mono } from 'next/font/google';
+import Link from 'next/link';
 import './globals.css';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const inter = Inter({
+  variable: '--font-inter',
   subsets: ['latin'],
 });
 
@@ -20,15 +21,32 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="bg-background text-foreground flex min-h-full flex-col">
+        <header className="border-border bg-background border-b">
+          <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
+            <Link
+              href="/scenarios"
+              className="text-sm font-semibold tracking-tight"
+            >
+              Agent Regression Lab
+            </Link>
+            <nav className="text-muted text-sm">
+              <Link href="/scenarios" className="hover:text-foreground">
+                Scenarios
+              </Link>
+            </nav>
+          </div>
+        </header>
+        <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-8">
+          {children}
+        </main>
+      </body>
     </html>
   );
 }
