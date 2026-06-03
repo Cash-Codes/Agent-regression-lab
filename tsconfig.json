@@ -20,7 +20,8 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@server/*": ["./src/server/*"]
+      "@server/*": ["./src/server/*"],
+      "@actions/*": ["./app/scenarios/*"]
     }
   },
   "include": [
