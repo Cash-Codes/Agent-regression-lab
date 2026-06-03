@@ -9,6 +9,7 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, 'src'),
       '@server': resolve(__dirname, 'src/server'),
+      '@actions': resolve(__dirname, 'app/scenarios'),
     },
   },
   test: {

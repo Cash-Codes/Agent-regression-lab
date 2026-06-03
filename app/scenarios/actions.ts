@@ -79,6 +79,10 @@ export async function runScenarioAction(formData: FormData): Promise<void> {
     redirect(`/scenarios/${scenarioId}`);
   }
 
+  if (!runId) {
+    throw new Error('runScenario returned no runId');
+  }
+
   revalidatePath(`/scenarios/${scenarioId}`);
   redirect(`/runs/${runId}`);
 }

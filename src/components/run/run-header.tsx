@@ -3,8 +3,7 @@ import { Pill, type PillVariant } from '../ui/pill';
 import { ErrorBanner } from '../ui/error-banner';
 import { CopyButton } from '../ui/copy-button';
 import { formatDuration, formatTokens, shortHash } from '../../lib/format';
-
-type RunStatus = 'PENDING' | 'RUNNING' | 'COMPLETE' | 'FAILED';
+import type { RunStatus } from '../../types/run';
 
 const STATUS_VARIANT: Record<RunStatus, PillVariant> = {
   PENDING: 'status-pending',

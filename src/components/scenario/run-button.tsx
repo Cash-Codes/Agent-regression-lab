@@ -1,4 +1,4 @@
-import { runScenarioAction } from '../../../app/scenarios/actions';
+import { runScenarioAction } from '@actions/actions';
 import { Button } from '../ui/button';
 
 export function RunButton({ scenarioId }: { scenarioId: string }) {

@@ -4,7 +4,7 @@ import { useActionState } from 'react';
 import {
   createScenarioAction,
   type CreateScenarioState,
-} from '../../../app/scenarios/actions';
+} from '@actions/actions';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 

@@ -9,7 +9,7 @@ afterEach(() => {
 // The form imports the action; for unit tests we don't need the action to
 // actually run — useActionState only invokes it on submit, and we don't submit.
 // We mock it to avoid pulling in server-only modules (Prisma, next/cache).
-vi.mock('../../../app/scenarios/actions', () => ({
+vi.mock('@actions/actions', () => ({
   createScenarioAction: vi.fn(),
 }));
 
