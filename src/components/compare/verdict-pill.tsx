@@ -6,28 +6,28 @@ const CLASSES: Record<Verdict, string> = {
   'length-mismatch': 'bg-pill-tool-soft text-pill-tool',
 };
 
-export function VerdictPill({
-  verdict,
-  firstDivergence,
-  lenA,
-  lenB,
-}: {
-  verdict: Verdict;
-  firstDivergence: number | null;
-  lenA: number;
-  lenB: number;
-}) {
+type VerdictPillProps =
+  | { verdict: 'identical'; firstDivergence: null; lenA: number; lenB: number }
+  | { verdict: 'diverged'; firstDivergence: number; lenA: number; lenB: number }
+  | {
+      verdict: 'length-mismatch';
+      firstDivergence: number;
+      lenA: number;
+      lenB: number;
+    };
+
+export function VerdictPill(props: VerdictPillProps) {
   let copy: string;
-  if (verdict === 'identical') {
+  if (props.verdict === 'identical') {
     copy = 'identical · ✓ byte-deterministic';
-  } else if (verdict === 'diverged') {
-    copy = `diverged @ #${firstDivergence}`;
+  } else if (props.verdict === 'diverged') {
+    copy = `diverged @ #${props.firstDivergence}`;
   } else {
-    copy = `length mismatch · A=${lenA} B=${lenB}`;
+    copy = `length mismatch · A=${props.lenA} B=${props.lenB}`;
   }
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${CLASSES[verdict]}`}
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${CLASSES[props.verdict]}`}
     >
       {copy}
     </span>

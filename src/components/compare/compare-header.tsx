@@ -53,12 +53,28 @@ export function CompareHeader({
         <div className="flex items-center gap-3">
           <SyncScroll paneSelectors={['#compare-pane-a', '#compare-pane-b']} />
           {verdict !== 'identical' ? <JumpToDivergenceButton /> : null}
-          <VerdictPill
-            verdict={verdict}
-            firstDivergence={firstDivergence}
-            lenA={runA.events}
-            lenB={runB.events}
-          />
+          {verdict === 'identical' ? (
+            <VerdictPill
+              verdict="identical"
+              firstDivergence={null}
+              lenA={runA.events}
+              lenB={runB.events}
+            />
+          ) : verdict === 'diverged' ? (
+            <VerdictPill
+              verdict="diverged"
+              firstDivergence={firstDivergence ?? 0}
+              lenA={runA.events}
+              lenB={runB.events}
+            />
+          ) : (
+            <VerdictPill
+              verdict="length-mismatch"
+              firstDivergence={firstDivergence ?? 0}
+              lenA={runA.events}
+              lenB={runB.events}
+            />
+          )}
         </div>
       </div>
       <div className="border-border bg-soft grid grid-cols-2 gap-4 rounded-lg border px-4 py-3">

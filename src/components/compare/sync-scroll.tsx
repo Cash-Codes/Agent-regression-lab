@@ -9,9 +9,10 @@ export function SyncScroll({
 }) {
   const [enabled, setEnabled] = useState(true);
   const reentry = useRef(false);
+  const selectorsRef = useRef(paneSelectors);
 
   useEffect(() => {
-    const [selA, selB] = paneSelectors;
+    const [selA, selB] = selectorsRef.current;
     const a = document.querySelector(selA) as HTMLElement | null;
     const b = document.querySelector(selB) as HTMLElement | null;
     if (!a || !b) return;
@@ -41,7 +42,7 @@ export function SyncScroll({
       a.removeEventListener('scroll', onA);
       b.removeEventListener('scroll', onB);
     };
-  }, [paneSelectors, enabled]);
+  }, [enabled]);
 
   return (
     <label className="text-muted flex items-center gap-2 text-xs">

@@ -46,7 +46,7 @@ export function ComparePanes({
             return (
               <div key={p.seq}>
                 {showMarker ? (
-                  <DivergenceMarker seq={p.seq} kind={p.kind} />
+                  <DivergenceMarker seq={p.seq} kind={p.kind} side="a" />
                 ) : null}
                 <DiffSpacer />
               </div>
@@ -57,7 +57,7 @@ export function ComparePanes({
             return (
               <div key={p.seq}>
                 {showMarker ? (
-                  <DivergenceMarker seq={p.seq} kind={p.kind} />
+                  <DivergenceMarker seq={p.seq} kind={p.kind} side="a" />
                 ) : null}
                 <DiffSpacer />
               </div>
@@ -66,7 +66,7 @@ export function ComparePanes({
           return (
             <div key={p.seq}>
               {showMarker ? (
-                <DivergenceMarker seq={p.seq} kind={p.kind} />
+                <DivergenceMarker seq={p.seq} kind={p.kind} side="a" />
               ) : null}
               <DiffCell event={event} kind={p.kind} side="a" />
             </div>
@@ -83,7 +83,7 @@ export function ComparePanes({
             return (
               <div key={p.seq}>
                 {showMarker ? (
-                  <DivergenceMarker seq={p.seq} kind={p.kind} />
+                  <DivergenceMarker seq={p.seq} kind={p.kind} side="b" />
                 ) : null}
                 <DiffSpacer />
               </div>
@@ -94,7 +94,7 @@ export function ComparePanes({
             return (
               <div key={p.seq}>
                 {showMarker ? (
-                  <DivergenceMarker seq={p.seq} kind={p.kind} />
+                  <DivergenceMarker seq={p.seq} kind={p.kind} side="b" />
                 ) : null}
                 <DiffSpacer />
               </div>
@@ -103,7 +103,7 @@ export function ComparePanes({
           return (
             <div key={p.seq}>
               {showMarker ? (
-                <DivergenceMarker seq={p.seq} kind={p.kind} />
+                <DivergenceMarker seq={p.seq} kind={p.kind} side="b" />
               ) : null}
               <DiffCell event={event} kind={p.kind} side="b" />
             </div>

@@ -82,4 +82,14 @@ describe('diffRuns', () => {
     expect(r.pairs[1].kind).toBe('diverge');
     expect(r.pairs[2].kind).toBe('match');
   });
+
+  it('verdict stays diverged when mid-stream diverge is followed by a one-sided tail', () => {
+    const a = [ev(0, 'x', '1'), ev(1, 'y', 'A')];
+    const b = [ev(0, 'x', '1'), ev(1, 'y', 'B'), ev(2, 'z', '3')];
+    const r = diffRuns(a, b);
+    expect(r.verdict).toBe('diverged');
+    expect(r.firstDivergence).toBe(1);
+    expect(r.pairs[1].kind).toBe('diverge');
+    expect(r.pairs[2].kind).toBe('onlyB');
+  });
 });

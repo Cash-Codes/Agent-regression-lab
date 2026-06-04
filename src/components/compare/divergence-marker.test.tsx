@@ -6,14 +6,18 @@ afterEach(() => cleanup());
 
 describe('DivergenceMarker', () => {
   it('renders the sequence number and kind copy', () => {
-    render(<DivergenceMarker seq={4} kind="diverge" />);
+    render(<DivergenceMarker seq={4} kind="diverge" side="a" />);
     expect(
       screen.getByText(/first divergence at #4 — diverge/i),
     ).toBeInTheDocument();
   });
 
-  it('exposes id="first-divergence-marker" for the jump button to target', () => {
-    const { container } = render(<DivergenceMarker seq={0} kind="onlyB" />);
-    expect(container.querySelector('#first-divergence-marker')).not.toBeNull();
+  it('exposes id with the side suffix for the jump button to target', () => {
+    const { container } = render(
+      <DivergenceMarker seq={0} kind="onlyB" side="a" />,
+    );
+    expect(
+      container.querySelector('#first-divergence-marker-a'),
+    ).not.toBeNull();
   });
 });
