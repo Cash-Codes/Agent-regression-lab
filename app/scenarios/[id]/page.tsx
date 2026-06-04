@@ -1,17 +1,33 @@
 import { notFound } from 'next/navigation';
 import { prisma } from '@server/db/client';
 import { Card } from '@/components/ui/card';
+import { ErrorBanner } from '@/components/ui/error-banner';
 import { RunButton } from '@/components/scenario/run-button';
-import { RunsList, type RunRow } from '@/components/scenario/runs-list';
+import { ComparableRunsShell } from '@/components/scenario/comparable-runs-shell';
+import type { RunRow } from '@/components/scenario/runs-list';
 
 export const dynamic = 'force-dynamic';
 
+const ERROR_MESSAGES: Record<string, { title: string; body: string }> = {
+  'cross-scenario': {
+    title: 'Cross-scenario compare not allowed',
+    body: 'Runs must belong to the same scenario.',
+  },
+  incomplete: {
+    title: 'Run not complete',
+    body: 'Both runs must be COMPLETE or FAILED before comparing.',
+  },
+};
+
 export default async function ScenarioDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const { id } = await params;
+  const { error } = await searchParams;
   const scenario = await prisma.scenario.findUnique({
     where: { id },
     include: {
@@ -31,8 +47,13 @@ export default async function ScenarioDetailPage({
     createdAt: r.createdAt,
   }));
 
+  const errorMsg = error ? ERROR_MESSAGES[error] : null;
+
   return (
     <div className="space-y-6">
+      {errorMsg ? (
+        <ErrorBanner title={errorMsg.title}>{errorMsg.body}</ErrorBanner>
+      ) : null}
       <header className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
@@ -78,7 +99,7 @@ export default async function ScenarioDetailPage({
 
       <section className="space-y-2">
         <h2 className="text-foreground text-sm font-semibold">Runs</h2>
-        <RunsList runs={runs} />
+        <ComparableRunsShell runs={runs} />
       </section>
     </div>
   );
