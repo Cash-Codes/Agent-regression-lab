@@ -25,6 +25,12 @@
   --color-status-running: #1d4ed8;
   --color-status-pending: #64748b;
 
+  --color-divergence-changed: #fbcfe8;
+  --color-divergence-changed-ink: #9d174d;
+  --color-divergence-only: #fde68a;
+  --color-divergence-only-ink: #92400e;
+  --color-divergence-marker: #b91c1c;
+
   --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }
