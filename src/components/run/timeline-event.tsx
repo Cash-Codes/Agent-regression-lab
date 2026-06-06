@@ -39,6 +39,14 @@ function summaryFor(type: string, payload: unknown): string {
       return `value=${p.value} · source=${p.source ?? '?'}`;
     case 'runtime.time':
       return `logicalMs=${p.logicalMs}`;
+    case 'evaluation.result': {
+      const passed = (payload as { passed?: boolean }).passed === true;
+      const assertionId =
+        (payload as { assertionId?: string }).assertionId ?? '?';
+      const message = (payload as { message?: string }).message;
+      if (passed) return `passed ${assertionId}`;
+      return `failed ${assertionId}${message ? ` — ${message}` : ''}`;
+    }
     default:
       return type;
   }
@@ -49,7 +57,11 @@ function truncate(s: string, n: number): string {
 }
 
 export function TimelineEvent({ event }: { event: TimelineEventData }) {
-  const variant = (event.type as PillVariant) ?? 'runtime.time';
+  let variant: PillVariant = (event.type as PillVariant) ?? 'runtime.time';
+  if (event.type === 'evaluation.result') {
+    const passed = (event.payload as { passed?: boolean }).passed === true;
+    variant = passed ? 'status-complete' : 'status-failed';
+  }
   return (
     <Card className="p-3">
       <div className="flex items-center justify-between">
