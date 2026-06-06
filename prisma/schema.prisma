@@ -52,6 +52,10 @@ model Run {
   totalTokensOut Int?
   totalCostUsd   Decimal?  @db.Decimal(10, 6)
   replayHash     String?
+  passedAssertions       Int?
+  totalAssertions        Int?
+  regression             Boolean?  @default(false)
+  regressedAssertionIds  String[]  @default([])
   error          String?
   createdAt      DateTime  @default(now())
   events         Event[]
