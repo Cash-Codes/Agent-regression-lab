@@ -45,6 +45,9 @@ export default async function ScenarioDetailPage({
     totalTokensOut: r.totalTokensOut,
     durationMs: r.durationMs,
     createdAt: r.createdAt,
+    passedAssertions: r.passedAssertions,
+    totalAssertions: r.totalAssertions,
+    regression: r.regression,
   }));
 
   const errorMsg = error ? ERROR_MESSAGES[error] : null;
