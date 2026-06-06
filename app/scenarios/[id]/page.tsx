@@ -76,7 +76,7 @@ export default async function ScenarioDetailPage({
         <RunButton scenarioId={scenario.id} />
       </header>
 
-      <section className="grid gap-4 md:grid-cols-2">
+      <section className="grid gap-4 md:grid-cols-3">
         <Card className="p-4">
           <h2 className="text-muted text-xs font-medium tracking-wider uppercase">
             Inputs
@@ -92,6 +92,17 @@ export default async function ScenarioDetailPage({
           <pre className="bg-soft mt-2 overflow-x-auto rounded-md p-3 font-mono text-xs">
             {scenario.fixtures
               ? JSON.stringify(scenario.fixtures, null, 2)
+              : '— none —'}
+          </pre>
+        </Card>
+        <Card className="p-4">
+          <h2 className="text-muted text-xs font-medium tracking-wider uppercase">
+            Assertions
+          </h2>
+          <pre className="bg-soft mt-2 overflow-x-auto rounded-md p-3 font-mono text-xs">
+            {Array.isArray(scenario.assertions) &&
+            scenario.assertions.length > 0
+              ? JSON.stringify(scenario.assertions, null, 2)
               : '— none —'}
           </pre>
         </Card>
