@@ -9,6 +9,10 @@ import { runAgentLoop } from './agent-loop';
 import { SnapshotToolExecutor } from './tool-executor';
 import { FrozenClock } from './clock';
 import { SeededPRNG } from './prng';
+import { evaluateRun } from '../evals/engine';
+import { detectRegression } from '../evals/regression';
+import { loadAssertionResultsForRun } from '../evals/load';
+import { AssertionListSchema } from '../evals/types';
 
 export interface RunScenarioOpts {
   scenarioId: string;
@@ -131,10 +135,42 @@ export async function runScenario(
       prng,
     });
 
+    const parsedAssertions = AssertionListSchema.parse(
+      scenario.assertions ?? [],
+    );
+    const evalResults =
+      parsedAssertions.length > 0
+        ? evaluateRun(capture.pendingEvents, parsedAssertions)
+        : [];
+    for (const result of evalResults) {
+      capture.emit('evaluation.result', {
+        assertionId: result.assertionId,
+        passed: result.passed,
+        message: result.message,
+      });
+    }
+
+    const priorRun = await prisma.run.findFirst({
+      where: {
+        scenarioId: scenario.id,
+        status: 'COMPLETE',
+        id: { not: run.id },
+      },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true },
+    });
+    const priorResults = priorRun
+      ? await loadAssertionResultsForRun(prisma, priorRun.id)
+      : null;
+    const regInfo = detectRegression(evalResults, priorResults);
+
     const totals = aggregateLLMTotals(capture.pendingEvents);
     const { replayHash } = await capture.flush(prisma);
 
     const durationMs = Date.now() - startedAt;
+
+    const passed = evalResults.filter((r) => r.passed).length;
+    const total = evalResults.length;
 
     await prisma.run.update({
       where: { id: run.id },
@@ -143,6 +179,10 @@ export async function runScenario(
         totalTokensOut: totals.out,
         totalCostUsd: totals.cost,
         durationMs,
+        passedAssertions: total > 0 ? passed : null,
+        totalAssertions: total > 0 ? total : null,
+        regression: regInfo.regressed,
+        regressedAssertionIds: regInfo.regressedAssertionIds,
       },
     });
 
