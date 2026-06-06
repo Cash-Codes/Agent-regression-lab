@@ -119,4 +119,130 @@ describe('runScenario integration', () => {
     expect(runs[0].status).toBe('FAILED');
     expect(runs[0].error).toMatch(/No fixture for unknown_tool:/);
   });
+
+  it('populates passed/total assertion counts and no regression on first run', async () => {
+    const scenario = await prisma.scenario.create({
+      data: {
+        name: 'eval integration: first run',
+        inputs: {
+          user: 'where is order o-1',
+          cannedResponses: [
+            {
+              match: 'where is order',
+              response: {
+                model: 'mock',
+                content: '',
+                stopReason: 'tool_use',
+                toolCalls: [
+                  {
+                    toolName: 'lookup_order',
+                    input: { orderId: 'o-1' },
+                    callId: 'c-1',
+                  },
+                ],
+              },
+            },
+            {
+              match: 'TOOL_RESULT',
+              response: {
+                model: 'mock',
+                content: 'Your order has shipped.',
+                stopReason: 'end_turn',
+              },
+            },
+          ],
+        },
+        fixtures: {
+          [fixtureKey('lookup_order', { orderId: 'o-1' })]: {
+            status: 'shipped',
+          },
+        },
+        assertions: [
+          {
+            id: 'asks-shipping',
+            type: 'response_contains',
+            substring: 'shipped',
+          },
+          {
+            id: 'no-refund',
+            type: 'tool_not_called',
+            toolName: 'issue_refund',
+          },
+          {
+            id: 'one-lookup',
+            type: 'event_count_equals',
+            eventType: 'tool.call',
+            count: 1,
+          },
+        ],
+        tags: [TEST_TAG],
+      },
+    });
+
+    const result = await runScenario({ scenarioId: scenario.id, seed: 42 });
+    expect(result.status).toBe('COMPLETE');
+
+    const persisted = await prisma.run.findUniqueOrThrow({
+      where: { id: result.runId },
+    });
+    expect(persisted.passedAssertions).toBe(3);
+    expect(persisted.totalAssertions).toBe(3);
+    expect(persisted.regression).toBe(false);
+    expect(persisted.regressedAssertionIds).toEqual([]);
+  });
+
+  it('flags regression when an assertion that passed before now fails', async () => {
+    // First run: 1 assertion that passes
+    const first = await prisma.scenario.create({
+      data: {
+        name: 'eval integration: regression run A',
+        inputs: {
+          user: 'hi',
+          cannedResponses: [
+            {
+              match: 'hi',
+              response: {
+                model: 'mock',
+                content: 'hello',
+                stopReason: 'end_turn',
+              },
+            },
+          ],
+        },
+        assertions: [
+          { id: 'greets', type: 'response_contains', substring: 'hello' },
+        ],
+        tags: [TEST_TAG],
+      },
+    });
+    await runScenario({ scenarioId: first.id, seed: 1 });
+
+    // Mutate the canned response so the assertion will fail on the next run.
+    await prisma.scenario.update({
+      where: { id: first.id },
+      data: {
+        inputs: {
+          user: 'hi',
+          cannedResponses: [
+            {
+              match: 'hi',
+              response: {
+                model: 'mock',
+                content: 'goodbye',
+                stopReason: 'end_turn',
+              },
+            },
+          ],
+        },
+      },
+    });
+    const secondResult = await runScenario({ scenarioId: first.id, seed: 2 });
+    const second = await prisma.run.findUniqueOrThrow({
+      where: { id: secondResult.runId },
+    });
+    expect(second.regression).toBe(true);
+    expect(second.regressedAssertionIds).toEqual(['greets']);
+    expect(second.passedAssertions).toBe(0);
+    expect(second.totalAssertions).toBe(1);
+  });
 });
