@@ -9,6 +9,7 @@ import {
   parseInputsJSON,
   parseFixturesJSON,
 } from '@/lib/validation';
+import { parseAssertionsJSON } from '@/lib/assertion-validation';
 
 export type CreateScenarioState = { error: string | null };
 
@@ -45,6 +46,14 @@ export async function createScenarioAction(
     return { error: err instanceof Error ? err.message : String(err) };
   }
 
+  const assertionsRaw = String(formData.get('assertions') ?? '');
+  let assertions: ReturnType<typeof parseAssertionsJSON>;
+  try {
+    assertions = parseAssertionsJSON(assertionsRaw);
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : String(err) };
+  }
+
   const created = await prisma.scenario.create({
     data: {
       name,
@@ -53,6 +62,7 @@ export async function createScenarioAction(
       inputs: inputs as never,
       fixtures:
         Object.keys(fixtures).length > 0 ? (fixtures as never) : undefined,
+      assertions: assertions as never,
     },
   });
 

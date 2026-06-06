@@ -101,6 +101,21 @@ export function NewScenarioForm() {
             className="border-border bg-background focus:border-accent mt-1 w-full rounded-md border px-3 py-1.5 font-mono text-xs focus:outline-none"
           />
         </div>
+        <div>
+          <label
+            htmlFor="assertions"
+            className="text-muted block text-xs font-medium"
+          >
+            Assertions (JSON, optional)
+          </label>
+          <textarea
+            id="assertions"
+            name="assertions"
+            rows={4}
+            placeholder="[]"
+            className="border-border bg-background focus:border-accent mt-1 w-full rounded-md border px-3 py-1.5 font-mono text-xs focus:outline-none"
+          />
+        </div>
         {state.error ? (
           <p className="text-pill-eval-fail text-xs">{state.error}</p>
         ) : null}
