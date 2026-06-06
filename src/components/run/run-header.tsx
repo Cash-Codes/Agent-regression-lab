@@ -22,6 +22,10 @@ export interface RunHeaderData {
   durationMs: number | null;
   iterations: number | null;
   error: string | null;
+  passedAssertions: number | null;
+  totalAssertions: number | null;
+  regression: boolean | null;
+  regressedAssertionIds: string[];
 }
 
 export function RunHeader({ run }: { run: RunHeaderData }) {
@@ -38,6 +42,23 @@ export function RunHeader({ run }: { run: RunHeaderData }) {
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <Pill variant={STATUS_VARIANT[run.status]}>{run.status}</Pill>
+        {run.totalAssertions !== null ? (
+          <span className="bg-soft text-foreground rounded-full px-2 py-0.5 text-xs">
+            {run.passedAssertions ?? 0}/{run.totalAssertions} passed
+          </span>
+        ) : null}
+        {run.regression ? (
+          <span
+            title={
+              run.regressedAssertionIds.length > 0
+                ? `regressed: ${run.regressedAssertionIds.join(', ')}`
+                : undefined
+            }
+            className="bg-pill-eval-fail-soft text-pill-eval-fail rounded-full px-2 py-0.5 text-xs font-semibold"
+          >
+            regression
+          </span>
+        ) : null}
         {run.replayHash ? (
           <div className="text-muted flex items-center gap-2 text-xs">
             <span className="font-mono">
