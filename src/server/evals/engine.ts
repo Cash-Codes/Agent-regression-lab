@@ -24,9 +24,14 @@ function computeReplayHashFromEvents(events: ReadonlyArray<EventRow>): string {
       type: string;
       payload: unknown;
       contentHash?: string;
+      sequenceNumber?: number;
     };
     const hash = ev.contentHash ?? sha256(canonicalJSON(ev.payload ?? null));
-    return { sequenceNumber: i, type: ev.type, contentHash: hash };
+    return {
+      sequenceNumber: ev.sequenceNumber ?? i,
+      type: ev.type,
+      contentHash: hash,
+    };
   });
   return sha256(canonicalJSON(summary));
 }

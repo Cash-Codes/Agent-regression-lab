@@ -58,10 +58,11 @@ export default async function RunPage({
       };
     });
 
-  const scenarioAssertions: Assertion[] = AssertionListSchema.safeParse(
+  const assertionsParseResult = AssertionListSchema.safeParse(
     run.scenario.assertions ?? [],
-  ).success
-    ? (AssertionListSchema.parse(run.scenario.assertions ?? []) as Assertion[])
+  );
+  const scenarioAssertions: Assertion[] = assertionsParseResult.success
+    ? assertionsParseResult.data
     : [];
 
   // Iterations isn't a column on Run yet; derive from llm.request count.

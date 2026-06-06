@@ -286,7 +286,7 @@ describe('EventCapture', () => {
     expect(events[1].type).toBe('runtime.time');
 
     // Mutate the returned array — internal state must be unaffected.
-    (events as { type: string; payload: unknown }[]).push({
+    (events as unknown as { type: string; payload: unknown }[]).push({
       type: 'injected',
       payload: {},
     });

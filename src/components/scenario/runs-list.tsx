@@ -29,6 +29,7 @@ export interface RunRow {
   passedAssertions: number | null;
   totalAssertions: number | null;
   regression: boolean | null;
+  regressedAssertionIds: string[];
 }
 
 export function RunsList({
@@ -149,7 +150,14 @@ function RunEvals({ r }: { r: RunRow }) {
         </span>
       ) : null}
       {r.regression ? (
-        <span className="bg-pill-eval-fail-soft text-pill-eval-fail rounded-full px-2 py-0.5 text-xs font-semibold">
+        <span
+          title={
+            r.regressedAssertionIds.length > 0
+              ? `regressed: ${r.regressedAssertionIds.join(', ')}`
+              : undefined
+          }
+          className="bg-pill-eval-fail-soft text-pill-eval-fail rounded-full px-2 py-0.5 text-xs font-semibold"
+        >
           R
         </span>
       ) : null}

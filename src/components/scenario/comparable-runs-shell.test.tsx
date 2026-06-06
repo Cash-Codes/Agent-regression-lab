@@ -26,6 +26,7 @@ const r = (id: string, createdAt: Date): RunRow => ({
   passedAssertions: null,
   totalAssertions: null,
   regression: null,
+  regressedAssertionIds: [],
 });
 
 describe('ComparableRunsShell', () => {

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { evaluateRun } from './engine';
 import type { Assertion } from './types';
+import { EventCapture } from '../events/capture';
 
 function llmReq(model: string) {
   return { type: 'llm.request', payload: { model, messages: [] } };
@@ -153,5 +154,29 @@ describe('evaluateRun', () => {
     );
     expect(r.map((x) => x.assertionId)).toEqual(['a', 'b', 'c']);
     expect(r.every((x) => x.passed)).toBe(true);
+  });
+
+  it('replay_hash_equals matches when given the same hash EventCapture would compute', () => {
+    const capture = new EventCapture('test-run-1');
+    capture.emit('llm.request', {
+      model: 'mock',
+      messages: [{ role: 'user', content: 'hello' }],
+    });
+    capture.emit('llm.response', {
+      model: 'mock',
+      content: 'hi there',
+      stopReason: 'end_turn',
+      tokensIn: 5,
+      tokensOut: 3,
+    });
+
+    const expectedHash = capture.computeReplayHash();
+    const assertion: Assertion = {
+      id: 'h1',
+      type: 'replay_hash_equals',
+      hash: expectedHash,
+    };
+    const results = evaluateRun(capture.pendingEvents, [assertion]);
+    expect(results[0].passed).toBe(true);
   });
 });
