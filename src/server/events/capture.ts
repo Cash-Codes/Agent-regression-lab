@@ -83,8 +83,18 @@ export class EventCapture {
     return this.events.length;
   }
 
-  get pendingEvents(): readonly { type: string; payload: unknown }[] {
-    return this.events.map((e) => ({ type: e.type, payload: e.payload }));
+  get pendingEvents(): ReadonlyArray<{
+    type: string;
+    payload: unknown;
+    contentHash: string;
+    sequenceNumber: number;
+  }> {
+    return this.events.map((e) => ({
+      type: e.type,
+      payload: e.payload,
+      contentHash: e.contentHash,
+      sequenceNumber: e.sequenceNumber,
+    }));
   }
 
   computeReplayHash(): string {

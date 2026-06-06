@@ -117,6 +117,8 @@ export default async function ComparePage({
           totalTokensIn: a.totalTokensIn,
           totalTokensOut: a.totalTokensOut,
           replayHash: a.replayHash,
+          regression: a.regression,
+          regressedAssertionIds: a.regressedAssertionIds,
         }}
         runB={{
           id: b.id,
@@ -126,6 +128,8 @@ export default async function ComparePage({
           totalTokensIn: b.totalTokensIn,
           totalTokensOut: b.totalTokensOut,
           replayHash: b.replayHash,
+          regression: b.regression,
+          regressedAssertionIds: b.regressedAssertionIds,
         }}
         verdict={diff.verdict}
         firstDivergence={diff.firstDivergence}

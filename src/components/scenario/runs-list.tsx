@@ -26,6 +26,10 @@ export interface RunRow {
   totalTokensOut: number | null;
   durationMs: number | null;
   createdAt: Date;
+  passedAssertions: number | null;
+  totalAssertions: number | null;
+  regression: boolean | null;
+  regressedAssertionIds: string[];
 }
 
 export function RunsList({
@@ -55,11 +59,12 @@ export function RunsList({
           <Link
             key={r.id}
             href={`/runs/${r.id}`}
-            className="hover:bg-soft grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-4 px-4 py-3"
+            className="hover:bg-soft grid grid-cols-[auto_1fr_auto_auto_auto_auto] items-center gap-4 px-4 py-3"
           >
             <Pill variant={STATUS_VARIANT[r.status]}>{r.status}</Pill>
             <RunBody r={r} />
             <RunTokens r={r} />
+            <RunEvals r={r} />
             <RunDuration r={r} />
             <span className="text-muted">›</span>
           </Link>
@@ -75,7 +80,7 @@ export function RunsList({
         return (
           <label
             key={r.id}
-            className={`hover:bg-soft grid cursor-pointer grid-cols-[auto_auto_1fr_auto_auto_auto] items-center gap-4 px-4 py-3 ${
+            className={`hover:bg-soft grid cursor-pointer grid-cols-[auto_auto_1fr_auto_auto_auto_auto] items-center gap-4 px-4 py-3 ${
               checked ? 'bg-soft' : ''
             }`}
           >
@@ -88,6 +93,7 @@ export function RunsList({
             <Pill variant={STATUS_VARIANT[r.status]}>{r.status}</Pill>
             <RunBody r={r} />
             <RunTokens r={r} />
+            <RunEvals r={r} />
             <RunDuration r={r} />
             <Link
               href={`/runs/${r.id}`}
@@ -131,6 +137,30 @@ function RunDuration({ r }: { r: RunRow }) {
   return (
     <div className="text-muted text-right text-xs">
       {r.durationMs !== null ? formatDuration(r.durationMs) : '—'}
+    </div>
+  );
+}
+
+function RunEvals({ r }: { r: RunRow }) {
+  return (
+    <div className="flex items-center gap-2">
+      {r.totalAssertions !== null ? (
+        <span className="bg-soft text-foreground rounded-full px-2 py-0.5 text-xs">
+          {r.passedAssertions ?? 0}/{r.totalAssertions}
+        </span>
+      ) : null}
+      {r.regression ? (
+        <span
+          title={
+            r.regressedAssertionIds.length > 0
+              ? `regressed: ${r.regressedAssertionIds.join(', ')}`
+              : undefined
+          }
+          className="bg-pill-eval-fail-soft text-pill-eval-fail rounded-full px-2 py-0.5 text-xs font-semibold"
+        >
+          R
+        </span>
+      ) : null}
     </div>
   );
 }

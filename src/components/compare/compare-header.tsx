@@ -23,6 +23,8 @@ export interface CompareRunSummary {
   totalTokensIn: number | null;
   totalTokensOut: number | null;
   replayHash: string | null;
+  regression: boolean | null;
+  regressedAssertionIds: string[];
 }
 
 export function CompareHeader({
@@ -81,6 +83,19 @@ export function CompareHeader({
         <RunStatBlock label="Run A — older" run={runA} />
         <RunStatBlock label="Run B — newer" run={runB} />
       </div>
+      {runA.regression || runB.regression ? (
+        <div className="text-pill-eval-fail text-xs">
+          regression:{' '}
+          {[
+            ...(runA.regression
+              ? runA.regressedAssertionIds.map((id) => `A:${id}`)
+              : []),
+            ...(runB.regression
+              ? runB.regressedAssertionIds.map((id) => `B:${id}`)
+              : []),
+          ].join(', ')}
+        </div>
+      ) : null}
     </div>
   );
 }
