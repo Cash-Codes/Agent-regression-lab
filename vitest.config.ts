@@ -22,7 +22,11 @@ export default defineConfig({
         test: {
           name: 'node',
           environment: 'node',
-          include: ['src/**/*.test.ts', 'app/**/*.test.ts'],
+          include: [
+            'src/**/*.test.ts',
+            'app/**/*.test.ts',
+            'prisma/seed/**/*.test.ts',
+          ],
         },
       },
       {
