@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Geist_Mono } from 'next/font/google';
 import Link from 'next/link';
+import { DemoPill } from '@/components/ui/demo-pill';
 import './globals.css';
 
 const inter = Inter({
@@ -30,12 +31,15 @@ export default function RootLayout({
       <body className="bg-background text-foreground flex min-h-full flex-col">
         <header className="border-border bg-background border-b">
           <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
-            <Link
-              href="/scenarios"
-              className="text-sm font-semibold tracking-tight"
-            >
-              Agent Regression Lab
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/scenarios"
+                className="text-sm font-semibold tracking-tight"
+              >
+                Agent Regression Lab
+              </Link>
+              <DemoPill />
+            </div>
             <nav className="text-muted text-sm">
               <Link href="/scenarios" className="hover:text-foreground">
                 Scenarios
