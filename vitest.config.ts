@@ -22,7 +22,11 @@ export default defineConfig({
         test: {
           name: 'node',
           environment: 'node',
-          include: ['src/**/*.test.ts', 'app/**/*.test.ts'],
+          include: [
+            'src/**/*.test.ts',
+            'app/**/*.test.ts',
+            'prisma/seed/**/*.test.ts',
+          ],
         },
       },
       {
@@ -30,6 +34,7 @@ export default defineConfig({
         test: {
           name: 'jsdom',
           environment: 'jsdom',
+          globals: true,
           include: ['src/**/*.test.tsx', 'app/**/*.test.tsx'],
           setupFiles: ['./vitest.setup.ts'],
         },
