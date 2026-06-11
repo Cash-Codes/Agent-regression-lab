@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Scenario {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  inputs      Json
+  fixtures    Json?
+  tags        String[] @default([])
+  assertions  Json     @default("[]")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  runs        Run[]
+
+  @@index([createdAt])
+}
+
+enum RunMode {
+  SNAPSHOT
+  LIVE
+}
+
+enum RunStatus {
+  PENDING
+  RUNNING
+  COMPLETE
+  FAILED
+}
+
+model Run {
+  id             String    @id @default(cuid())
+  scenarioId     String
+  scenario       Scenario  @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  label          String?
+  promptVersion  String?
+  model          String?
+  temperature    Float?
+  modelConfig    Json?
+  mode           RunMode   @default(SNAPSHOT)
+  status         RunStatus @default(PENDING)
+  startedAt      DateTime?
+  finishedAt     DateTime?
+  durationMs     Int?
+  totalTokensIn  Int?
+  totalTokensOut Int?
+  totalCostUsd   Decimal?  @db.Decimal(10, 6)
+  replayHash     String?
+  passedAssertions       Int?
+  totalAssertions        Int?
+  regression             Boolean?  @default(false)
+  regressedAssertionIds  String[]  @default([])
+  error          String?
+  createdAt      DateTime  @default(now())
+  events         Event[]
+
+  @@index([scenarioId, createdAt])
+  @@index([replayHash])
+}
+
+model Event {
+  id             String   @id @default(cuid())
+  runId          String
+  run            Run      @relation(fields: [runId], references: [id], onDelete: Cascade)
+  sequenceNumber Int
+  parentEventId  String?
+  type           String
+  payload        Json
+  contentHash    String
+  logicalClock   Int
+  wallTime       DateTime @default(now())
+
+  @@unique([runId, sequenceNumber])
+  @@index([runId, type])
+  @@index([contentHash])
+}

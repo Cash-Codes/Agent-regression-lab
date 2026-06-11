@@ -1,0 +1,49 @@
+@import 'tailwindcss';
+
+@theme inline {
+  --color-background: #ffffff;
+  --color-foreground: #0f172a;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
+  --color-soft: #f8fafc;
+  --color-accent: #0f172a;
+  --color-accent-foreground: #ffffff;
+
+  --color-pill-llm: #1d4ed8;
+  --color-pill-llm-soft: #dbeafe;
+  --color-pill-tool: #b45309;
+  --color-pill-tool-soft: #fef3c7;
+  --color-pill-runtime: #6d28d9;
+  --color-pill-runtime-soft: #ede9fe;
+  --color-pill-eval-pass: #15803d;
+  --color-pill-eval-pass-soft: #d1fae5;
+  --color-pill-eval-fail: #b91c1c;
+  --color-pill-eval-fail-soft: #fee2e2;
+
+  --color-status-complete: #15803d;
+  --color-status-failed: #b91c1c;
+  --color-status-running: #1d4ed8;
+  --color-status-pending: #64748b;
+
+  --color-divergence-changed: #fbcfe8;
+  --color-divergence-changed-ink: #9d174d;
+  --color-divergence-only: #fde68a;
+  --color-divergence-only-ink: #92400e;
+  --color-divergence-marker: #b91c1c;
+
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #0a0a0a;
+    --color-foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
